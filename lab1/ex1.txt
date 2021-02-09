@@ -1,0 +1,18 @@
+--Order countries by id asc, then show the 12th to 17th rows:
+SELECT * FROM country WHERE country_id > 11 AND country_id < 18 ORDER BY country_id;
+
+--List all addresses in a city whose name starts with 'A’:
+SELECT address FROM address WHERE city_id IN (
+	SELECT city_id FROM city WHERE starts_with(city.city, 'A') OR starts_with(city.city, 'a'));
+
+--List all customers' first name, last name and the city they live in:
+SELECT first_name, last_name, city FROM customer
+LEFT JOIN address ON customer.address_id = address.address_id
+LEFT JOIN city ON address.city_id = city.city_id;
+
+--Find all customers with at least one payment whose amount is greater than 11 dollars:
+SELECT first_name, last_name FROM customer WHERE customer_id IN (
+	SELECT DISTINCT customer_id FROM payment WHERE amount > 11);
+
+--Find all duplicated first names in the customer table:
+SELECT first_name FROM customer GROUP BY first_name HAVING count(first_name) > 1;
