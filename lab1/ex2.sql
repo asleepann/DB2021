@@ -39,6 +39,6 @@ CREATE TRIGGER doubled_payment
 	FOR EACH ROW
 	EXECUTE PROCEDURE insertion_doubled_payment();
 
---Test for trigger
+--Test for trigger: amount is 70 at the end of insertion
 INSERT INTO payment (customer_id, staff_id, rental_id, payment_date, amount)
 VALUES (1, 1, 1, '2021-02-09 22:22:22', 35);
