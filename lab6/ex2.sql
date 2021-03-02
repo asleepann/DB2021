@@ -16,7 +16,7 @@ SELECT first_name, last_name, title FROM customer
 JOIN rental ON customer.customer_id = rental.customer_id
 JOIN inventory ON rental.inventory_id = inventory.inventory_id
 JOIN film ON inventory.film_id = film.film_id
-)
+);
 
 /*
 "SetOp Except  (cost=185509.87..187916.56 rows=224625 width=736)"
@@ -62,6 +62,68 @@ JOIN film ON inventory.film_id = film.film_id
 "                                ->  Seq Scan on film film_2  (cost=0.00..64.00 rows=1000 width=19)"
 */
 
+CREATE INDEX film1 ON film USING hash(film_id);
+
+EXPLAIN SELECT first_name, last_name, title FROM customer
+CROSS JOIN film
+WHERE title IN
+(
+SELECT title FROM film
+JOIN film_category ON film.film_id = film_category.film_id
+JOIN category ON film_category.category_id = category.category_id
+WHERE (film.rating = 'R' OR film.rating = 'PG-13')
+AND (category.name = 'Horror' OR category.name = 'Sci-Fi')
+)
+EXCEPT
+(
+SELECT first_name, last_name, title FROM customer
+JOIN rental ON customer.customer_id = rental.customer_id
+JOIN inventory ON rental.inventory_id = inventory.inventory_id
+JOIN film ON inventory.film_id = film.film_id
+);
+
+-- Analysis of query 1 after creating index on expensive step and rewriting the query, cost is lower.
+
+/*
+"SetOp Except  (cost=19543.35..19985.32 rows=28153 width=736)"
+"  ->  Sort  (cost=19543.35..19653.85 rows=44197 width=736)"
+"        Sort Key: ""*SELECT* 1"".first_name, ""*SELECT* 1"".last_name, ""*SELECT* 1"".title"
+"        ->  Append  (cost=53.51..1779.69 rows=44197 width=736)"
+"              ->  Subquery Scan on ""*SELECT* 1""  (cost=53.51..733.90 rows=28153 width=32)"
+"                    ->  Nested Loop  (cost=53.51..452.37 rows=28153 width=28)"
+"                          ->  Seq Scan on customer  (cost=0.00..14.99 rows=599 width=13)"
+"                          ->  Materialize  (cost=53.51..85.59 rows=47 width=15)"
+"                                ->  Nested Loop  (cost=53.51..85.35 rows=47 width=15)"
+"                                      ->  HashAggregate  (cost=53.51..53.98 rows=47 width=15)"
+"                                            Group Key: (film_1.title)::text"
+"                                            ->  Nested Loop  (cost=1.26..53.39 rows=47 width=15)"
+"                                                  ->  Hash Join  (cost=1.26..20.58 rows=125 width=2)"
+"                                                        Hash Cond: (film_category.category_id = category.category_id)"
+"                                                        ->  Seq Scan on film_category  (cost=0.00..16.00 rows=1000 width=4)"
+"                                                        ->  Hash  (cost=1.24..1.24 rows=2 width=4)"
+"                                                              ->  Seq Scan on category  (cost=0.00..1.24 rows=2 width=4)"
+"                                                                    Filter: (((name)::text = 'Horror'::text) OR ((name)::text = 'Sci-Fi'::text))"
+"                                                  ->  Index Scan using film1 on film film_1  (cost=0.00..0.26 rows=1 width=19)"
+"                                                        Index Cond: (film_id = film_category.film_id)"
+"                                                        Filter: ((rating = 'R'::mpaa_rating) OR (rating = 'PG-13'::mpaa_rating))"
+"                                      ->  Index Scan using film2 on film  (cost=0.00..0.66 rows=1 width=15)"
+"                                            Index Cond: ((title)::text = (film_1.title)::text)"
+"              ->  Subquery Scan on ""*SELECT* 2""  (cost=227.05..824.80 rows=16044 width=32)"
+"                    ->  Hash Join  (cost=227.05..664.36 rows=16044 width=28)"
+"                          Hash Cond: (inventory.film_id = film_2.film_id)"
+"                          ->  Hash Join  (cost=150.55..545.57 rows=16044 width=15)"
+"                                Hash Cond: (rental.inventory_id = inventory.inventory_id)"
+"                                ->  Hash Join  (cost=22.48..375.33 rows=16044 width=17)"
+"                                      Hash Cond: (rental.customer_id = customer_1.customer_id)"
+"                                      ->  Seq Scan on rental  (cost=0.00..310.44 rows=16044 width=6)"
+"                                      ->  Hash  (cost=14.99..14.99 rows=599 width=17)"
+"                                            ->  Seq Scan on customer customer_1  (cost=0.00..14.99 rows=599 width=17)"
+"                                ->  Hash  (cost=70.81..70.81 rows=4581 width=6)"
+"                                      ->  Seq Scan on inventory  (cost=0.00..70.81 rows=4581 width=6)"
+"                          ->  Hash  (cost=64.00..64.00 rows=1000 width=19)"
+"                                ->  Seq Scan on film film_2  (cost=0.00..64.00 rows=1000 width=19)"
+*/
+
 -- Ananlysis of query 2
 EXPLAIN SELECT store_id, city, MAX(foo.sales) OVER (PARTITION BY city) FROM
 (
@@ -71,7 +133,7 @@ JOIN city ON address.city_id = city.city_id
 JOIN payment ON store.manager_staff_id = payment.staff_id
 WHERE payment.payment_date >= '2007-04-14'
 GROUP BY store.store_id, city.city_id
-) AS foo
+) AS foo;
 
 /*
 "WindowAgg  (cost=471.31..492.31 rows=1200 width=45)"
@@ -95,7 +157,7 @@ GROUP BY store.store_id, city.city_id
 "                                            Index Cond: (city_id = address.city_id)"
 */
 
-CREATE INDEX payment2 ON payment USING btree(payment_date)
+CREATE INDEX payment2 ON payment USING btree(payment_date);
 
 -- Analysis of query 2 after creating index on expensive step (payment_date >= '2007-04-14 00:00:00'), cost is lower.
 /*
