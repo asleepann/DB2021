@@ -97,7 +97,7 @@ GROUP BY store.store_id, city.city_id
 
 CREATE INDEX payment2 ON payment USING btree(payment_date)
 
--- Analysis of query 2 after creating index on expensive step (payment_date >= '2007-04-14 00:00:00')
+-- Analysis of query 2 after creating index on expensive step (payment_date >= '2007-04-14 00:00:00'), cost is lower.
 /*
 "WindowAgg  (cost=403.21..424.21 rows=1200 width=45)"
 "  ->  Sort  (cost=403.21..406.21 rows=1200 width=45)"
