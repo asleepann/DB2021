@@ -94,3 +94,29 @@ GROUP BY store.store_id, city.city_id
 "                                      ->  Index Scan using city_pkey on city  (cost=0.28..0.35 rows=1 width=13)"
 "                                            Index Cond: (city_id = address.city_id)"
 */
+
+CREATE INDEX payment2 ON payment USING btree(payment_date)
+
+-- Analysis of query 2 after creating index on expensive step (payment_date >= '2007-04-14 00:00:00')
+/*
+"WindowAgg  (cost=403.21..424.21 rows=1200 width=45)"
+"  ->  Sort  (cost=403.21..406.21 rows=1200 width=45)"
+"        Sort Key: foo.city"
+"        ->  Subquery Scan on foo  (cost=314.84..341.84 rows=1200 width=45)"
+"              ->  HashAggregate  (cost=314.84..329.84 rows=1200 width=49)"
+"                    Group Key: store.store_id, city.city_id"
+"                    ->  Hash Join  (cost=88.68..288.58 rows=3501 width=23)"
+"                          Hash Cond: (payment.staff_id = store.manager_staff_id)"
+"                          ->  Bitmap Heap Scan on payment  (cost=71.42..223.18 rows=3501 width=8)"
+"                                Recheck Cond: (payment_date >= '2007-04-14 00:00:00'::timestamp without time zone)"
+"                                ->  Bitmap Index Scan on payment2  (cost=0.00..70.54 rows=3501 width=0)"
+"                                      Index Cond: (payment_date >= '2007-04-14 00:00:00'::timestamp without time zone)"
+"                          ->  Hash  (cost=17.24..17.24 rows=2 width=19)"
+"                                ->  Nested Loop  (cost=0.00..17.24 rows=2 width=19)"
+"                                      ->  Nested Loop  (cost=0.00..17.08 rows=2 width=8)"
+"                                            ->  Seq Scan on store  (cost=0.00..1.02 rows=2 width=8)"
+"                                            ->  Index Scan using city_address1 on address  (cost=0.00..8.02 rows=1 width=6)"
+"                                                  Index Cond: (address_id = store.address_id)"
+"                                      ->  Index Scan using city_address2 on city  (cost=0.00..0.08 rows=1 width=13)"
+"                                            Index Cond: (city_id = address.city_id)"
+*/
