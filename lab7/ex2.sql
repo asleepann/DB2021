@@ -40,3 +40,4 @@ SELECT retrievecustomers(3, -10); -- end_index must be a positive number!
 SELECT retrievecustomers(600, 700); -- end_index must be less than or equal to 600!
 SELECT retrievecustomers(599, 600); -- no exceptions
 SELECT retrievecustomers(800, 900); -- start_index must be less than or equal to 600!
+SELECT retrievecustomers(10, 1); -- start_index must be less than or equal to end_index!
