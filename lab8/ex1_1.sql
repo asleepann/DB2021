@@ -4,7 +4,7 @@ VALUES
 (1, 'Andrew', 1000),
 (2, 'Olga', 1000);
 
--- Transactioin 1
+-- Transaction 1
 START TRANSACTION;
 
 UPDATE account
