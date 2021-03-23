@@ -46,11 +46,11 @@ ROLLBACK;
 START TRANSACTION;
 
 UPDATE account
-	SET credit = credit - 1000
+	SET credit = credit - 100
 	WHERE account_id = 2;
 	
 UPDATE account
-	SET credit = credit + 1000
+	SET credit = credit + 100
 	WHERE account_id = 3;
 	
 SELECT * FROM account;
