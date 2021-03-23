@@ -1,19 +1,27 @@
-INSERT INTO account (account_id, customer_name, credit)
+-- Table creation
+CREATE TABLE account (
+	account_id SERIAL PRIMARY KEY,
+	customer_name VARCHAR NOT NULL,
+	credit INT NOT NULL
+);
+
+-- Insertion of 3 accounts into the table
+INSERT INTO account (customer_name, credit)
 VALUES
-(0, 'Anna', 1000),
-(1, 'Andrew', 1000),
-(2, 'Olga', 1000);
+('Anna', 1000),
+('Andrew', 1000),
+('Olga', 1000);
 
 -- Transaction 1
 START TRANSACTION;
 
 UPDATE account
 	SET credit = credit - 500
-	WHERE account_id = 0;
+	WHERE account_id = 1;
 	
 UPDATE account
 	SET credit = credit + 500
-	WHERE account_id = 2;
+	WHERE account_id = 3;
 	
 SELECT * FROM account;
 
@@ -24,11 +32,11 @@ START TRANSACTION;
 
 UPDATE account
 	SET credit = credit - 700
-	WHERE account_id = 1;
+	WHERE account_id = 2;
 	
 UPDATE account
 	SET credit = credit + 700
-	WHERE account_id = 0;
+	WHERE account_id = 1;
 	
 SELECT * FROM account;
 
@@ -39,11 +47,11 @@ START TRANSACTION;
 
 UPDATE account
 	SET credit = credit - 1000
-	WHERE account_id = 1;
+	WHERE account_id = 2;
 	
 UPDATE account
 	SET credit = credit + 1000
-	WHERE account_id = 2;
+	WHERE account_id = 3;
 	
 SELECT * FROM account;
 
