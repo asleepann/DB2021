@@ -1,2 +1,3 @@
 1. db.collection0.find({})
 2. db.collection0.find({}, {restaurant_id: true, borough: true, cuisine: true})
+3. db.collection0.find({borough: "Bronx"}).limit(5)
