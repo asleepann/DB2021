@@ -1,1 +1,2 @@
 1. db.collection0.find({})
+2. db.collection0.find({}, {restaurant_id: true, borough: true, cuisine: true})
