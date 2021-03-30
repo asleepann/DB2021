@@ -1,0 +1,1 @@
+1. db.collection0.find({})
