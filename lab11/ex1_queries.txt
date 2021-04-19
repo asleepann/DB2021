@@ -1,0 +1,63 @@
+Part 1
+CREATE (khabib:Fighter { name: "Khabib Nurmagomedov", weight: 155 }),
+(rafael:Fighter { name: "Rafael Dos Anjos", weight: 155 }),
+(neil:Fighter { name: "Neil Magny", weight: 170 }),
+(jon:Fighter { name: "Jon Jones", weight: 205 }),
+(daniel:Fighter { name: "Daniel Cormier", weight: 205 }),
+(michael:Fighter { name: "Michael Bisping", weight: 185 }),
+(matt:Fighter { name: "Matt Hamill", weight: 185 }),
+(brandon:Fighter { name: "Brandon Vera", weight: 205 }),
+(frank:Fighter { name: "Frank Mir", weight: 230 }),
+(brock:Fighter { name: "Brock Lesnar", weight: 230 }),
+(kelvin:Fighter { name: "Kelvin Gastelum", weight: 185 }),
+(khabib)-[:BEATS]->(rafael),
+(rafael)-[:BEATS]->(neil),
+(jon)-[:BEATS]->(daniel),
+(michael)-[:BEATS]->(matt),
+(jon)-[:BEATS]->(brandon),
+(brandon)-[:BEATS]->(frank),
+(frank)-[:BEATS]->(brock),
+(neil)-[:BEATS]->(kelvin),
+(kelvin)-[:BEATS]->(michael),
+(michael)-[:BEATS]->(matt),
+(michael)-[:BEATS]->(kelvin),
+(matt)-[:BEATS]->(jon)
+
+MATCH (f:Fighter)
+RETURN f
+
+Part 2
+Query 1
+MATCH (f:Fighter)-[:BEATS]->(f1:Fighter)
+WHERE f.weight = 155 OR f.weight = 170 OR f.weight = 185
+RETURN f
+
+Query 2
+MATCH (f:Fighter)-[r:BEATS]->(f1:Fighter),
+(f1:Fighter)-[r1:BEATS]->(f:Fighter)
+WITH COUNT(r) AS num_r, COUNT(r1) AS num_r1, f, f1
+WHERE num_r = 1 AND num_r1 = 1
+RETURN f, f1
+
+Query 3
+MATCH (f:Fighter { name: "Khabib Nurmagomedov" })-[:BEATS]->(f1:Fighter),
+(f1:Fighter)-[:BEATS*..12]->(f2:Fighter)
+WHERE NOT((f:Fighter)-[:BEATS]->(f2:Fighter))
+RETURN f2
+
+Query 4
+Undefeated Fighters
+MATCH (f:Fighter)
+WHERE NOT(()-[:BEATS]->(f:Fighter))
+RETURN f
+
+Defeated Fighters
+MATCH (f:Fighter)
+WHERE NOT((f:Fighter)-[:BEATS]->())
+RETURN f
+
+Query 5
+MATCH (f:Fighter)
+WITH f, SIZE((f:Fighter)-[:BEATS]->()) AS wins,
+SIZE(()-[:BEATS]->(f:Fighter)) AS losses
+RETURN f.name, f.weight, wins + "-" + losses AS record
