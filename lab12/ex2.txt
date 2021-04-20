@@ -1,0 +1,5 @@
+Profiles:
+HMSET 0 login "asleepAnn" name "Anna Startseva" followers 100 following 200 posts 50
+
+Posts:
+HMSET post_1 user_id 0 date 20/04/21 time 12:30
