@@ -1,5 +1,5 @@
 Profiles:
-HMSET profile_id:0 login "asleepAnn" name "Anna Startseva" followers 100 following 200 posts 50
+HMSET profile:0 login "asleepAnn" name "Anna Startseva" followers 100 following 200 posts 50
 
 Posts:
-HMSET post_id:0 user_id 0 date 20/04/21 time 12:30
+HMSET post:0 profile_id 0 date 20/04/21 time 12:30
